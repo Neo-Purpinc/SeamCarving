@@ -1,8 +1,9 @@
 import java.io.IOException;
+import java.util.Scanner;
 
 class Test
 {
-   static boolean visite[];
+   static boolean[] visite;
    public static void dfs(Graph g, int u)
 	 {
 		visite[u] = true;
@@ -36,11 +37,13 @@ class Test
 	 }
    
    public static void main(String[] args) throws IOException {
-	 	int[][] tmp = {{3,11,24,39},{8,21,29,39},{200,60,25,0}};
-	 	/*int[][] tmp2 = SeamCarving.interest(tmp);
-	 	Graph g = SeamCarving.tograph(tmp2);
-	 	SeamCarving.Bellman_Ford(g,0,13);*/
-	    SeamCarving.deleteOnePixel();
-	 	//g.writeFile("test.dot");
-	 }
+   		Scanner sc = new Scanner(System.in);
+	    System.out.println("Quelle image souhaitez-vous modifier ?");
+	    String path = sc.nextLine();
+	    System.out.println("Combien de colonnes souhaitez-vous enlever ?");
+	    int nbIter = sc.nextInt();
+
+	    int[][] image = SeamCarving.readpgm("ressources/"+path);
+	 	SeamCarving.seamCarved(image,nbIter);
+   }
 }

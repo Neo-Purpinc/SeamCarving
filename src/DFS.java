@@ -4,8 +4,8 @@ class DFS
 {
     
     public static void botched_dfs1(Graph g, int s){
-	Stack<Integer> stack = new Stack<Integer>();
-	boolean visited[] = new boolean[g.vertices()];
+	Stack<Integer> stack = new Stack<>();
+	boolean[] visited = new boolean[g.vertices()];
 	stack.push(s);
 	visited[s] = true;	    	
 	while (!stack.empty()){
@@ -21,8 +21,8 @@ class DFS
     }
 
     public static void botched_dfs2(Graph g, int s){
-	Stack<Integer> stack = new Stack<Integer>();
-	boolean visited[] = new boolean[g.vertices()];
+	Stack<Integer> stack = new Stack<>();
+	boolean[] visited = new boolean[g.vertices()];
 	stack.push(s);
 	System.out.println(s);
 	visited[s] = true;	    	
@@ -39,8 +39,8 @@ class DFS
     }
     
     public static void botched_dfs3(Graph g, int s){
-	Stack<Integer> stack = new Stack<Integer>();
-	boolean visited[] = new boolean[g.vertices()];
+	Stack<Integer> stack = new Stack<>();
+	boolean[] visited = new boolean[g.vertices()];
 	stack.push(s);
 	while (!stack.empty()){
 	    int u = stack.pop();
@@ -57,8 +57,8 @@ class DFS
 
     
     public static void botched_dfs4(Graph g, int s){
-	Stack<Integer> stack = new Stack<Integer>();
-	boolean visited[] = new boolean[g.vertices()];
+	Stack<Integer> stack = new Stack<>();
+	boolean[] visited = new boolean[g.vertices()];
 	stack.push(s);
 	visited[s] = true;
 	System.out.println(s);
@@ -87,12 +87,6 @@ class DFS
 	System.out.println(stack.capacity());
     }
 
-
-    
-
-
-    
-    
     public static void testGraph()
     {
 	int n = 5;
