@@ -44,6 +44,6 @@ class Test
 	    int nbIter = sc.nextInt();
 
 	    int[][] image = SeamCarving.readpgm("ressources/"+path);
-	 	SeamCarving.seamCarved(image,nbIter);
+	 	SeamCarving.applySeamCarving(image,nbIter);
    }
 }

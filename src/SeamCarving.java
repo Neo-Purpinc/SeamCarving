@@ -1,3 +1,5 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 import java.util.*;
 public class SeamCarving
@@ -9,8 +11,7 @@ public class SeamCarving
     private static ArrayList<Integer> liste;
     private static int[][] newImage;
 
-    public static int[][] readpgm(String fn)
-	 {
+    public static int[][] readpgm(String fn) {
         try {
             InputStream f = ClassLoader.getSystemClassLoader().getResourceAsStream(fn);
             assert f != null;
@@ -41,7 +42,7 @@ public class SeamCarving
         }
     }
 
-    public static void writepgm(int[][] image, String filename) throws IOException {
+    private static void writepgm(int[][] image, String filename) throws IOException {
       File f = new File(filename);
       if(f.createNewFile()){
           System.out.println("Fichier crée");
@@ -67,7 +68,7 @@ public class SeamCarving
         fw.close();
     }
 
-    public static int[][] interest(int[][] image){
+    private static int[][] interest(int[][] image){
        int[][] tab = new int[image.length][image[0].length];
        for(int i = 0 ; i<image.length; i++){
            for(int j = 0; j<image[i].length;j++){
@@ -86,7 +87,7 @@ public class SeamCarving
        return tab;
     }
 
-    public static Graph tograph(int[][] itr) {
+    private static Graph tograph(int[][] itr) {
        int numSommet = 1;
        int numLigne = 0;
        GraphArrayList sortie = new GraphArrayList(itr.length*itr[0].length+2);
@@ -134,30 +135,36 @@ public class SeamCarving
         return sortie;
     }
 
-    public static int[] Bellman_Ford(Graph g, int s, int t){
-       //Initialisation
-       GraphArrayList graph = (GraphArrayList) g;
-       int V = g.vertices();
-       int[] parent = new int[V];
-       int[] d = new int[V];
-       for(int i = 0 ; i < V ; i++) {
+    private static int [] Bellman_Ford(Graph g, int s, int t){
+        //Initialisation
+        boolean modified = false;
+        GraphArrayList graph = (GraphArrayList) g;
+        int V = g.vertices();
+        int[] parent = new int[V];
+         int[] d = new int[V];
+        for(int i = 0 ; i < V ; i++) {
            d[i] = Integer.MAX_VALUE;
            parent[i]= -1;
-       }
-       d[s] = 0;
+        }
+        d[s] = 0;
 
        //Relachement des arcs
-       for(int i = 0 ; i < V-1 ; i++){
-           for(Edge e : graph.edges()) {
-               int u = e.getSrc();
-               int v = e.getDest();
-               int weight = e.getWeight();
-               if((d[v] > d[u] + weight) && (d[u] != Integer.MAX_VALUE)){
-                   d[v]=d[u]+weight;
-                   parent[v]=u;
-               }
+        int i = 0;
+       do{
+               for(Edge e : graph.edges()) {
+                   int u = e.getSrc();
+                   int v = e.getDest();
+                   int weight = e.getWeight();
+                   modified = false;
+                   if((d[v] > d[u] + weight) && (d[u] != Integer.MAX_VALUE)){
+                       d[v]=d[u]+weight;
+                       parent[v]=u;
+                       modified = true;
+                   }
            }
-       }
+               i++;
+       }while(modified && i<V-1);
+
        /* Le cas n'arrive jamais
        //Vérification de circuit négatif
         for(Edge e : graph.edges()){
@@ -169,22 +176,12 @@ public class SeamCarving
                 return parent;
             }
         }*/
-        System.out.println("Poids entre le sommet " + s + " et " + t + " = "+d[t]);
+        //System.out.println("Poids entre le sommet " + s + " et " + t + " = "+d[t]);
         //printTabPere(parent);
         return parent;
     }
 
-    static private void printTabPere(int[] parent) {
-        System.out.print("Père :\t\t");
-        for (int value : parent)
-            System.out.print(value + "|\t");
-        System.out.print("\nSommet : \t");
-        for(int j = 0 ; j < parent.length; j++)
-            System.out.print(j+"|\t");
-        System.out.println();
-    }
-
-    static private void getMinimalPath(Graph g){
+    private static void getMinimalPath(Graph g){
        int[] tabPere = Bellman_Ford(g, 0, g.vertices()-1);
        int i = g.vertices()-1;
        liste = new ArrayList<>();
@@ -192,19 +189,20 @@ public class SeamCarving
            liste.add(tabPere[i]);
            i=tabPere[i];
        }
-       System.out.println(liste);
     }
 
-    static public void seamCarved(int[][] image,int nbIterations) throws IOException {
+    public static void applySeamCarving(int[][] image, int nbIterations) throws IOException {
         original = image;
+        long lStartTime = System.currentTimeMillis();
         for(int iter = 0;iter<nbIterations;iter++){
+            System.out.println("Iteration n°"+iter);
             originalInterest = interest(original);
             g = tograph(originalInterest);
             getMinimalPath(g);
 
             newImage = new int[original.length][original[0].length-1];
             //On met l'image original dans une liste
-            listeOriginal = new ArrayList<>();
+            listeOriginal = new ArrayList<>(original.length*original[0].length);
             for(int[] i : original){
                 for(int j : i){
                     listeOriginal.add(j) ;
@@ -215,13 +213,10 @@ public class SeamCarving
             for(Integer index : liste){
                 listeOriginal.remove(index-1);
             }
-            System.out.println("L'image doit contenir "+listeOriginal.size() + " pixels et en contiendra "+newImage.length*newImage[0].length);
             //On reconstruit l'image
             int numLigne = 0;
             int numColonne = 0;
-            System.out.println(newImage.length);
             for(int pixel : listeOriginal){
-                System.out.println("newImage["+numLigne+"]["+numColonne+"] = "+pixel);
                 newImage[numLigne][numColonne] = pixel;
                 numColonne++;
                 if(numColonne==newImage[0].length){
@@ -231,13 +226,25 @@ public class SeamCarving
             }
             original = newImage;
         }
+        long lEndTime = System.currentTimeMillis();
+        long outputTime = (lEndTime - lStartTime)/1000;
+        System.out.println("Durée écoulée en secondes = "+outputTime);
         Scanner sc = new Scanner(System.in);
         System.out.println("Quel nom souhaitez-vous donner à votre fichier ?");
         String nom = sc.nextLine();
         writepgm(original,nom);
     }
 
-    static private void printTab(int[][] tab){
+    private static void printTabPere(int[] parent) {
+        System.out.print("Père :\t\t");
+        for (int value : parent)
+            System.out.print(value + "|\t");
+        System.out.print("\nSommet : \t");
+        for(int j = 0 ; j < parent.length; j++)
+            System.out.print(j+"|\t");
+        System.out.println();
+    }
+    private static void printTab(int[][] tab){
         for(int[] y : tab){
             for(int z : y){
                 System.out.print(z + " ");
