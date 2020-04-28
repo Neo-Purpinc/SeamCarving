@@ -4,8 +4,9 @@ public class SeamCarving
 {
     private static int[][] original;
     private static int[][] originalInterest;
+    private static List<Integer> listeOriginal;
     private static Graph g;
-    private static ArrayList<Integer> liste = new ArrayList<>();
+    private static ArrayList<Integer> liste;
     private static int[][] newImage;
 
     public static int[][] readpgm(String fn)
@@ -55,7 +56,7 @@ public class SeamCarving
     private static void ecrireFile(int[][] image,File f) throws IOException {
         FileWriter fw = new FileWriter(f);
         fw.write("P2\n");
-        fw.write(image.length + " " + image[0].length+"\n");
+        fw.write(image[0].length + " " + image.length+"\n");
         fw.write("255\n");
         for (int[] ints : image) {
             for (int anInt : ints) {
@@ -169,7 +170,7 @@ public class SeamCarving
             }
         }*/
         System.out.println("Poids entre le sommet " + s + " et " + t + " = "+d[t]);
-        printTabPere(parent);
+        //printTabPere(parent);
         return parent;
     }
 
@@ -183,18 +184,10 @@ public class SeamCarving
         System.out.println();
     }
 
-    static private void printTab(int[][] tab){
-        for(int[] y : tab){
-            for(int z : y){
-                System.out.print(z + " ");
-            }
-            System.out.println();
-        }
-    }
-
     static private void getMinimalPath(Graph g){
        int[] tabPere = Bellman_Ford(g, 0, g.vertices()-1);
        int i = g.vertices()-1;
+       liste = new ArrayList<>();
        while(tabPere[i]!=0){
            liste.add(tabPere[i]);
            i=tabPere[i];
@@ -210,9 +203,8 @@ public class SeamCarving
             getMinimalPath(g);
 
             newImage = new int[original.length][original[0].length-1];
-            System.out.println(original.length +"\t"+ (original[0].length-1));
             //On met l'image original dans une liste
-            List<Integer> listeOriginal = new ArrayList<>();
+            listeOriginal = new ArrayList<>();
             for(int[] i : original){
                 for(int j : i){
                     listeOriginal.add(j) ;
@@ -223,11 +215,13 @@ public class SeamCarving
             for(Integer index : liste){
                 listeOriginal.remove(index-1);
             }
-
+            System.out.println("L'image doit contenir "+listeOriginal.size() + " pixels et en contiendra "+newImage.length*newImage[0].length);
             //On reconstruit l'image
             int numLigne = 0;
             int numColonne = 0;
+            System.out.println(newImage.length);
             for(int pixel : listeOriginal){
+                System.out.println("newImage["+numLigne+"]["+numColonne+"] = "+pixel);
                 newImage[numLigne][numColonne] = pixel;
                 numColonne++;
                 if(numColonne==newImage[0].length){
@@ -237,67 +231,18 @@ public class SeamCarving
             }
             original = newImage;
         }
-        writepgm(original,"TentativeSeamCarving");
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Quel nom souhaitez-vous donner à votre fichier ?");
+        String nom = sc.nextLine();
+        writepgm(original,nom);
+    }
+
+    static private void printTab(int[][] tab){
+        for(int[] y : tab){
+            for(int z : y){
+                System.out.print(z + " ");
+            }
+            System.out.println();
+        }
     }
 }
-
-/*
-
-public void writepgmSeamCarved(int[][] img, int width, int height)
-{
-    // Stocke l'image
-    this.image = img;
-
-    for(int w=0;w<width;w++) // Nombre de colonnes a supprimer
-    {
-        // Initialisation de la liste contenant la position des sommets a supprimer
-        verticesToDelete = new ArrayList<Integer>(image.length);
-
-        // Tableau d'interet des sommets
-        int[][] interestArray = interest(image);
-
-        // Application de l'algorithme
-        Graph g = tograph(interestArray);
-        Bellman_Ford(g,0,g.vertices()-1);
-
-        // Compteur de sommets pour savoir quand enlever le sommet
-        int noSommet=0;
-
-        // Initialisation de la nouvelle image
-        int[][] newImage = new int[image.length][image[0].length-1];
-
-        for(int i=0;i<newImage.length;i++)
-        {
-            int indice = 0;
-            for(int j=0;j<newImage[i].length;j++)
-            {
-                if(indice<image[i].length)
-                {
-                    // Quand on trouve le sommet a supprimer, on ne l'écrit pas dans le nouveau fichier pgm
-                    if(!verticesToDelete.contains(noSommet))
-                    {
-                        newImage[i][j] = image[i][indice];
-                    }
-                    else
-                    {
-                        j--;
-                    }
-                }
-                else
-                {
-                    newImage[i][j] = image[i][j];
-                }
-
-                indice++;
-                noSommet++;
-            }
-        }
-
-        // Remplace l'ancienne image par la nouvelle
-        this.image = newImage;
-    }
-
-    writepgm(image,"ImageSeamCarved");
-
-
-}*/
